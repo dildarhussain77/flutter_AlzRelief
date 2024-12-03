@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "473331565354",
+    "project_id": "alzrelief-53038",
+    "storage_bucket": "alzrelief-53038.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473331565354:android:5546c39f36b5fba84f9453",
+        "android_client_info": {
+          "package_name": "com.example.alzrelief"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "473331565354-uf1b6l9nnhgm55dttg2gc34kl84qo0pn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj6_-axbh2pUp0B6F0XTtCEEyxqUYLB10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "473331565354-uf1b6l9nnhgm55dttg2gc34kl84qo0pn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "473331565354-fuvkftbvi1c872o4m9jsu3og28jcfs3n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.alzrelief"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
