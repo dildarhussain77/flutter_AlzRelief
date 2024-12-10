@@ -226,7 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       if (widget.isPsychologist) // Add schedule icon
                         IconButton(
-                          icon: const Icon(Icons.schedule, color: Colors.white),
+                          icon: const Icon(Icons.add_alarm_rounded, color: Colors.white),
                           onPressed: () {
                             final psychologistId = widget.userId; // Current user is the psychologist
                             final alzheimerId = widget.peerId; // Peer is the Alzheimer user
@@ -243,11 +243,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           },
                         ),
 
-                      if (widget.isPsychologist) // Add family icon
-                        IconButton(
-                          icon: const Icon(Icons.group_add, color: Colors.white),
-                          onPressed: (){} //_addFamilyMember,
-                        ),
+                      // if (widget.isPsychologist) // Add family icon
+                      //   IconButton(
+                      //     icon: const Icon(Icons.group_add, color: Colors.white),
+                      //     onPressed: (){} //_addFamilyMember,
+                      //   ),
                       
                     ],
                   ),

@@ -2,17 +2,22 @@ import 'package:alzrelief/screens/users%20chat/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class AppointedPsychologistsPage extends StatelessWidget {
+class AppointedPsychologistsPage extends StatefulWidget {
   final String alzheimerUserId;
 
   const AppointedPsychologistsPage({Key? key, required this.alzheimerUserId})
       : super(key: key);
 
+  @override
+  State<AppointedPsychologistsPage> createState() => _AppointedPsychologistsPageState();
+}
+
+class _AppointedPsychologistsPageState extends State<AppointedPsychologistsPage> {
   Future<List<Map<String, dynamic>>> _fetchAppointedPsychologists() async {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('alzheimer')
-          .doc(alzheimerUserId)
+          .doc(widget.alzheimerUserId)
           .collection('appointedPsychologists')
           .get();
 
@@ -145,7 +150,7 @@ class AppointedPsychologistsPage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ChatScreen(
-                                    userId: alzheimerUserId, // Current Alzheimer's user ID
+                                    userId: widget.alzheimerUserId, // Current Alzheimer's user ID
                                     peerId: psychologistId, // Selected Psychologist's ID
                                     peerName: psychologistName, // Selected Psychologist's Name
                                     isPsychologist: false, // Alzheimer's user is the current user
@@ -167,3 +172,11 @@ class AppointedPsychologistsPage extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+

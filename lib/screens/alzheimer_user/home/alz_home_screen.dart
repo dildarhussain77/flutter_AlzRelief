@@ -109,6 +109,44 @@ class _HomePageState extends State<AlzheimerHomePage> {
     }
   }
 
+
+  // Function to fetch IDs and navigate
+  Future<void> fetchIds(BuildContext context, String alzheimerUserId, String psychologistId) async {
+  try {
+    // Fetch the alzheimer document using the given alzheimerUserId
+    DocumentSnapshot alzheimerDoc = await FirebaseFirestore.instance
+        .collection('alzheimer')
+        .doc(alzheimerUserId) // Pass the actual alzheimer user ID here
+        .get();
+
+    // Fetch the psychologist document using the given psychologistId
+    DocumentSnapshot psychologistDoc = await FirebaseFirestore.instance
+        .collection('psychologist')
+        .doc(psychologistId) // Pass the actual psychologist user ID here
+        .get();
+
+    // Use the fetched IDs
+    final String fetchedPsychologistId = psychologistDoc.id;
+    final String fetchedAlzheimerId = alzheimerDoc.id;
+
+    // Navigate to ViewAppointmentsScreen with these IDs
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AppointmentsWithPsychologistsScreen(
+          psychologistId: fetchedPsychologistId,
+          alzheimerId: fetchedAlzheimerId,
+        ),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching IDs: $e')),
+    );
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -137,14 +175,14 @@ class _HomePageState extends State<AlzheimerHomePage> {
           selectedLabelStyle: TextStyle(fontSize: 12, color: Colors.black),
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home, color: Colors.orangeAccent), label: "Home"),
+                icon: Icon(Icons.home, color: Color.fromRGBO(95, 37, 133, 1.0),), label: "Home"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.message, color: Colors.lightBlue), label: "Chats"),
+                icon: Icon(Icons.message, color: Color.fromRGBO(95, 37, 133, 1.0),), label: "Chats"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person_search, color: Colors.lightGreen),
+                icon: Icon(Icons.person_search, color: Color.fromRGBO(95, 37, 133, 1.0),),
                 label: "Psychologists"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_active, color: Colors.redAccent), label: "Alerts"),
+                icon: Icon(Icons.notifications_active, color: Color.fromRGBO(95, 37, 133, 1.0),), label: "Alerts"),
           ],
         ),
         body: Column(
@@ -366,20 +404,92 @@ class _HomePageState extends State<AlzheimerHomePage> {
                             ),
                             
 
-                            TapNavigation(
-                              
-                              destination: ToDoPage(                                                                
-                                
+                            ElevatedButton(
+                              onPressed: () async {
+                                String? alzheimerUserId = FirebaseAuth.instance.currentUser?.uid; // Get current psychologist's ID
+                            
+                                if (alzheimerUserId != null) {
+                                  try {
+                                    // Query the first psychologist user (replace logic if needed)
+                                    QuerySnapshot psychologistQuery = await FirebaseFirestore.instance
+                                        .collection('psychologist')
+                                        .limit(1) // Limit to fetch only one document
+                                        .get();
+                            
+                                    if (psychologistQuery.docs.isNotEmpty) {
+                                      String psychologistId = psychologistQuery.docs.first.id; // Fetch the ID of the first Alzheimer user
+                                      
+                                      // Call fetchIds with dynamically fetched IDs
+                                      await fetchIds(context, alzheimerUserId, psychologistId);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('No Psychologist user found in the database.')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error fetching Alzheimer user: $e')),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('No logged-in psychologist found.')),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white, // Button background color
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15), // Rounded corners
+                                ),
+                                padding: EdgeInsets.all(15,),
                               ),
-                              child: HomePageTile(
-                                height: 87,
-                                width: 100,
-                                iconAsset: 'assets/images/appointment.png',
-                                icon: null,
-                                iconColor: Colors.orange,
-                                homeTileName: "Appointments",
-                                homeTileDes: "see Appointments",
-                                color: Colors.orange[200],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(10), // Padding inside the container
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange[200], // Background color with opacity (dark background)
+                                      borderRadius: BorderRadius.circular(15), // Rounded corners for the background
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.orange.withOpacity(0.0), // Shadow color
+                                          blurRadius: 10, // Blur effect for shadow
+                                          offset: Offset(0, 4), // Position of the shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: Image.asset(
+                                      'assets/images/appointment.png', // Your image file from assets
+                                      height: 40, // Set the size of the image
+                                      width: 40, // Set the width of the image
+                                    ),
+                                  ),
+                                  SizedBox(width: 14),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'View Appointments',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        'See your appointments',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],

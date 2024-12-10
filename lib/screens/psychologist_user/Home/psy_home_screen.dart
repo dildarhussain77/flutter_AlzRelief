@@ -2,16 +2,15 @@
 
 
 import 'package:alzrelief/screens/psychologist_user/Appointments/appointments_with_alz.dart';
+import 'package:alzrelief/screens/psychologist_user/Home/image_carousel.dart';
 import 'package:alzrelief/screens/psychologist_user/appointed%20azheimers/appointed_alzheimers.dart';
 import 'package:alzrelief/screens/psychologist_user/drawer/psy_drawer_header.dart';
 import 'package:alzrelief/screens/psychologist_user/drawer/psy_drawer_list.dart';
 import 'package:alzrelief/screens/psychologist_user/patient%20requests/patient_request.dart';
-import 'package:alzrelief/util/homepagetile.dart';
-import 'package:alzrelief/util/tapnavigation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
+
 
 
 class PsyHomePage extends StatefulWidget {
@@ -95,24 +94,6 @@ class _PsyHomePageState extends State<PsyHomePage> {
         Navigator.push(
           context, MaterialPageRoute(builder: (context) => AlzheimerRequestPage()));
         break;
-      case 3:
-        // final user = FirebaseAuth.instance.currentUser;
-  
-        // if (user != null) {
-        //     final String psychologistId = user.uid; // Get logged-in user ID dynamically.
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (context) => AppointmentsWithAlzheimerPage(psychologistId: psychologistId),
-        //       ),
-        //     );
-        //   } else {
-        //     ScaffoldMessenger.of(context).showSnackBar(
-        //       SnackBar(content: Text("You must be logged in to view appointed psychologists.")),
-        //     );
-        //   }
-       
-        break;
         
     }
   }
@@ -155,9 +136,7 @@ class _PsyHomePageState extends State<PsyHomePage> {
 
 
   @override
-  Widget build(BuildContext context) {
-    
-    
+  Widget build(BuildContext context) {        
     return SafeArea(
       child: Scaffold(
          key: _scaffoldKey,
@@ -177,6 +156,7 @@ class _PsyHomePageState extends State<PsyHomePage> {
           ),
       
         backgroundColor: Color.fromRGBO(95, 37, 133, 1.0),
+        resizeToAvoidBottomInset: false,
       
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentIndex,
@@ -193,9 +173,7 @@ class _PsyHomePageState extends State<PsyHomePage> {
                 icon: Icon(Icons.message, color: Color.fromRGBO(95, 37, 133, 1.0)), label: "Chats"),
             BottomNavigationBarItem(
                 icon: Icon(Icons.medical_services, color: Color.fromRGBO(95, 37, 133, 1.0)),
-                label: "Alzheimers"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_active, color: Color.fromRGBO(95, 37, 133, 1.0)), label: "Alerts"),
+                label: "Alzheimers"),           
           ],                 
         ),      
         body: Column(
@@ -225,14 +203,15 @@ class _PsyHomePageState extends State<PsyHomePage> {
                         ),
                       
                         Text(
-                            'Hi, ${_fullName ?? "not available"}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                ),
-                                
-                          ),
+                          'Hi, ${_fullName ?? "not available"}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),                            
+                        ),
+                        SizedBox(height: 3,), 
+                        
                       ],
                     ),
                 
@@ -254,8 +233,16 @@ class _PsyHomePageState extends State<PsyHomePage> {
                     ),           
                   ],      
                 ),
+                Text(
+                  'Let’s make a difference together in the lives of your patients. ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    //fontWeight: FontWeight.w500,
+                  ),                          
+                ),
                      
-              SizedBox(height: 25,),                     
+              SizedBox(height: 15,),                     
               ],
              ),
             ),
@@ -274,80 +261,109 @@ class _PsyHomePageState extends State<PsyHomePage> {
               
               child: Center(
                 child: Column(
-                  children: [
-                    SizedBox(height: 10,),
-              
+                  children: [                                  
                     //listview 
                     Expanded(
                       child: ListView(
                         children: [
-                         
-                          Divider(
-                            color: Colors.black,
-                            thickness: 1,
-                            height: 1,
-                        
-                          ),
-                          SizedBox(height: 10,),
 
-                          const Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text("Upcoming Appointments", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                              ),
-                            ],
-                          ), 
-
-
-                          // Button to fetch and view the schedule
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            String? psychologistId = FirebaseAuth.instance.currentUser?.uid; // Get current psychologist's ID
-                            
-                            if (psychologistId != null) {
-                              try {
-                                // Query the first Alzheimer user (replace logic if needed)
-                                QuerySnapshot alzheimerQuery = await FirebaseFirestore.instance
-                                    .collection('alzheimer')
-                                    .limit(1) // Limit to fetch only one document
-                                    .get();
-
-                                if (alzheimerQuery.docs.isNotEmpty) {
-                                  String alzheimerUserId = alzheimerQuery.docs.first.id; // Fetch the ID of the first Alzheimer user
-                                  
-                                  // Call fetchIds with dynamically fetched IDs
-                                  await fetchIds(context, psychologistId, alzheimerUserId);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('No Alzheimer user found in the database.')),
-                                  );
-                                }
-                              } catch (e) {
+                      ElevatedButton(
+                        onPressed: () async {
+                          String? psychologistId = FirebaseAuth.instance.currentUser?.uid; // Get current psychologist's ID
+                      
+                          if (psychologistId != null) {
+                            try {
+                              // Query the first Alzheimer user (replace logic if needed)
+                              QuerySnapshot alzheimerQuery = await FirebaseFirestore.instance
+                                  .collection('alzheimer')
+                                  .limit(1) // Limit to fetch only one document
+                                  .get();
+                      
+                              if (alzheimerQuery.docs.isNotEmpty) {
+                                String alzheimerUserId = alzheimerQuery.docs.first.id; // Fetch the ID of the first Alzheimer user
+                                
+                                // Call fetchIds with dynamically fetched IDs
+                                await fetchIds(context, psychologistId, alzheimerUserId);
+                              } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error fetching Alzheimer user: $e')),
+                                  const SnackBar(content: Text('No Alzheimer user found in the database.')),
                                 );
                               }
-                            } else {
+                            } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('No logged-in psychologist found.')),
+                                SnackBar(content: Text('Error fetching Alzheimer user: $e')),
                               );
                             }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5F2585),
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No logged-in psychologist found.')),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white, // Button background color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15), // Rounded corners
                           ),
-                          child: const Text(
-                            'View Appointments',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          padding: EdgeInsets.all(15,),
                         ),
-                        ),          
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10), // Padding inside the container
+                              decoration: BoxDecoration(
+                                color: Colors.orange[200], // Background color with opacity (dark background)
+                                borderRadius: BorderRadius.circular(15), // Rounded corners for the background
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.orange.withOpacity(0.0), // Shadow color
+                                    blurRadius: 10, // Blur effect for shadow
+                                    offset: Offset(0, 4), // Position of the shadow
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/images/appointment.png', // Your image file from assets
+                                height: 40, // Set the size of the image
+                                width: 40, // Set the width of the image
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'View Appointments',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  'See your appointments',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
 
-
-
-
+                       SizedBox(height: 10,),
+                      Divider(
+                            color: Colors.black,
+                            thickness: 1,
+                            height: 1,                                                    
+                          ), 
+                             // Now include the ImageCarousel widget here
+                           ImageCarousel(),  
                         ],
                       ),
                     )

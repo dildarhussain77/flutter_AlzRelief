@@ -172,7 +172,7 @@ class _PsychologistDetailsScreenState extends State<PsychologistDetailsScreen> {
 
     if (!canSendRequest) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You have already sent a request to this psychologist.")),
+        SnackBar(content: Text("You have already sent a request please check Chats.")),
       );
       return;
     }
@@ -209,7 +209,7 @@ class _PsychologistDetailsScreenState extends State<PsychologistDetailsScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Appointment request sent successfully!")),
+      SnackBar(content: Text("Appointment request sent successfully! wait for alert")),
     );
   } catch (e, stacktrace) {
     print("Error creating appointment request: $e");

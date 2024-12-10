@@ -1,14 +1,14 @@
-  
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 int rowLength = 10;
-  int colLength = 15;
+int colLength = 15;
 
 enum Direction {
   left,
   right,
   down,
 }
+
 enum TetroMino {
   L,
   J,
@@ -27,4 +27,4 @@ const Map<TetroMino, Color> tetrominoColors = {
   TetroMino.S: Colors.green,
   TetroMino.Z: Colors.red,
   TetroMino.T: Colors.purple,
-}; 
+};

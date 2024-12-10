@@ -8,20 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-// // Define the FlutterLocalNotificationsPlugin instance at the top of your file
-// final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//     FlutterLocalNotificationsPlugin();
-// Future<void> initNotification() async {
-//   const AndroidInitializationSettings initializationSettingsAndroid =
-//       AndroidInitializationSettings('@mipmap/ic_launcher');
-
-//   final InitializationSettings initializationSettings =
-//       InitializationSettings(android: initializationSettingsAndroid);
-
-//   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-// }
 
 class SignInWithGoogleRolePage extends StatefulWidget {
   const SignInWithGoogleRolePage({super.key});
@@ -79,16 +66,10 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
               context,
               MaterialPageRoute(builder: (context) => entry.value),
             );
-            // await _checkNotificationsAndNavigate(
-            // context,
-            // userId,
-            // entry.key,
-            // entry.value,
-          //);
+         
             return;
           }
         }
-
         // Navigate to user selection if no collection matches
         Navigator.pushReplacement(
           context,
@@ -104,72 +85,7 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
       setState(() => _isLoading = false);
     }
   }
-  // Future<void> _showNotification(String title, String body) async {
-  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  //       AndroidNotificationDetails(
-  //     'your_channel_id', // Replace with your channel ID
-  //     'notifications', // Replace with your channel name
-  //     channelDescription: 'This channel is for app notifications',
-  //     importance: Importance.max,
-  //     priority: Priority.high,
-  //     sound: RawResourceAndroidNotificationSound('alert_sound'), // Custom sound
-  //   );
-
-  //   const NotificationDetails platformChannelSpecifics =
-  //       NotificationDetails(android: androidPlatformChannelSpecifics);
-
-  //   await flutterLocalNotificationsPlugin.show(
-  //     0,
-  //     title,
-  //     body,
-  //     platformChannelSpecifics,
-  //   );
-  // }
-
-
-  // Future<void> _checkNotificationsAndNavigate(
-  //   BuildContext context,
-  //   String userId,
-  //   String role,
-  //   Widget homeScreen,
-  // ) async {
-  // try {
-  //   final snapshot = await FirebaseFirestore.instance
-  //       .collection(role)
-  //       .doc(userId)
-  //       .collection('notifications') // Subcollection for notifications
-  //       .orderBy('timestamp', descending: true)
-  //       .get();
-
-  //   for (var doc in snapshot.docs) {
-  //     final notification = doc.data();
-  //     final bool isNew = notification['isNew'] ?? true;
-
-  //     if (isNew) {
-  //       // Show notification
-  //       _showNotification(
-  //         notification['type'] ?? 'Notification',
-  //         notification['message'] ?? 'No message available.',
-  //       );
-
-  //       // Mark notification as read
-  //       await doc.reference.update({'isNew': false});
-  //     }
-  //   }
-
-    // Navigate to the user's home screen
-//     Navigator.pushReplacement(
-//       context,
-//       MaterialPageRoute(builder: (context) => homeScreen),
-//     );
-//   } catch (e) {
-//     print("Error checking notifications: $e");
-//   }
-// }
-
-
-
-
+ 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -221,42 +137,25 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                     child: Column(
                       children: [
                         const Text(
-                          "Login",
+                          "Welcome to AlzRelief",
                           style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                              fontSize: 28, fontWeight: FontWeight.bold, color: Color.fromRGBO(95, 37, 133, 1.0)),
                         ),
                         const SizedBox(height: 10),
-                        CustomTextField(
-                          controller: emailController,
-                          text: "Email",
-                          iconData: Icons.mail,
-                          toHide: false,
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Text(
+                            "Connecting patients with professional psychologists for a better quality of life. Let's make the journey smoother together.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black87,
+                              //fontStyle: FontStyle.italic,
+                            ),
+                          ),
                         ),
-                        CustomTextField(
-                          controller: passwordController,
-                          text: "Password",
-                          iconData: Icons.password,
-                          toHide: true,
-                        ),
-                        // TextButton(
-                        //   onPressed: () {
-                        //     Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: (context) => ForgetPasswordPage()));
-                        //   },
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.only(left: 150),
-                        //     child: const Text(
-                        //       "Forgotten password?",
-                        //       style: TextStyle(
-                        //           fontSize: 16,
-                        //           color: Color.fromRGBO(95, 37, 133, 1.0),
-                        //           fontWeight: FontWeight.w700),
-                        //     ),
-                        //   ),
-                        // ),
                         const SizedBox(height: 15),
+                        // Google Sign-In button, keep size and design the same
                         SizedBox(
                           width: 210,
                           child: ElevatedButton(
@@ -266,8 +165,7 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromRGBO(95, 37, 133, 1.0),
+                              backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
                               side: BorderSide(color: Colors.grey, width: 1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
@@ -305,7 +203,8 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                       ],
                     ),
                   ),
-                ),
+                )
+
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:alzrelief/screens/alzheimer_user/home/drawer/profile/alzheimer_profile.dart';
 import 'package:alzrelief/screens/sign%20in%20with%20google/sign_in_with_google_Role.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AlzheimerMyDrawerList extends StatefulWidget {
@@ -67,16 +68,20 @@ class _AlzheimerMyDrawerListState extends State<AlzheimerMyDrawerList> {
                           // Close the dialog
                           Navigator.of(context).pop();
                         },
-                        child: Text('Cancel'),
+                        child: Text('Cancel'), 
                       ),
                       TextButton(
-                        onPressed: () {
-                          // Navigate to the login page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SignInWithGoogleRolePage()), // Replace `LoginPage` with your login page widget
-                          );
+                        onPressed: () async {
+                            await FirebaseAuth.instance.signOut();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignInWithGoogleRolePage()),
+                              (route) => false,
+                            );
                         },
+                        
+                       
                         child: Text('Logout'),
                       ),
                     ],
