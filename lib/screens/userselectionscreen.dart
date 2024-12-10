@@ -1,6 +1,6 @@
-import 'package:alzrelief/screens/registration%20screens/alzheimerRegistration.dart';
-import 'package:alzrelief/screens/registration%20screens/familyRegistration.dart';
-import 'package:alzrelief/screens/registration%20screens/psychologistRegistration.dart';
+import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/alzheimerRegistration.dart';
+import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/family/familyRegistration.dart';
+import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/psychologistRegistration.dart';
 import 'package:alzrelief/util/homepagetile.dart';
 import 'package:alzrelief/util/image_logo_helper.dart';
 import 'package:alzrelief/util/tapnavigation.dart';

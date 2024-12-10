@@ -1,12 +1,8 @@
-// 
-// ignore_for_file: unnecessary_const
 
-
-// import 'package:alzrelief/screens/home/home_screen.dart';
-// import 'package:alzrelief/screens/home/home_screen.dart';
-import 'package:alzrelief/util/image_logo_helper.dart';
-import 'package:alzrelief/util/uihelper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpMePage extends StatefulWidget {
   const HelpMePage({super.key});
@@ -16,137 +12,269 @@ class HelpMePage extends StatefulWidget {
 }
 
 class _HelpMePageState extends State<HelpMePage> {
+  String? _fullName;
+  String? _phoneNumber;
+  String? _familyPhoneNumber;
+  String? _addressHome;
+  String? _profileImageUrl;
+  double _latitude = 0.0;
+  double _longitude = 0.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('alzheimer')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists) {
+          setState(() {
+            _fullName = doc['fullName'];
+            _phoneNumber = doc['phoneNumber'];
+            _familyPhoneNumber = doc['familyPhoneNumber'];
+            _addressHome = doc['addressHome'];
+            _profileImageUrl = doc['profileImageUrl'];
+            _latitude = doc['latitude'];
+            _longitude = doc['longitude'];
+            _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error fetching profile data: $e');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-      
         backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
-      
-       
-      
-        body: Column(
-          children: [
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-              child: Stack(                 
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: (){
-                          Navigator.pop(context);
-                        },
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 10.0),
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                         SizedBox(height: 10),                                                   
+                        Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 65,
+                                backgroundImage: _profileImageUrl != null
+                                    ? NetworkImage(_profileImageUrl!) as ImageProvider
+                                    : const AssetImage('assets/images/default_avatar.png'),
+                                backgroundColor: Colors.grey[300],
+                              ),                 
+                              const SizedBox(height: 10.0),
+                              // Text for Name
+                              Text(
+                                'Hi, ${_fullName ?? "not available"}!',
+                                style: const TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),                  
+                      ],
+                    ),
                   ),
-                                
-                  Center(
-                    child: LogoImage(
-                      imagePath: 'assets/images/mypic.jpg',
-                      borderColor: Colors.white,
+                 // const SizedBox(height: 10),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(30.0),
+                          topRight: Radius.circular(30.0),
+                        ),
+                      ),
+                      child: _buildProfileDetails(),
                     ),
                   ),
                 ],
               ),
-            ),
-                    
-            const SizedBox(height: 10,),        
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(
-                  top: 20,
-                  left: 5,
-                  right: 5,
-                ),              
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0),
-                  )
-                ),
-                child: Center(
-                  child: Column( 
-                     
-                    children: [
-
-                      const Text("Hello my name is",style: TextStyle(fontSize: 20,),),
-                      SizedBox(height: 5,),
-                      const Text("Dildar Hussain Bhutto",style: TextStyle(
-                        fontSize: 22,fontWeight: FontWeight.bold, color: const Color.fromRGBO(95, 37, 133, 1.0),),),
-                      SizedBox(height: 5,),
-                      const Text("and I am lost, Please Help me.",style: TextStyle(fontSize: 20,),),
-
-                      SizedBox(height: 20,),
-
-                      Divider(
-                        color: Colors.black,
-                        thickness: 1,
-                        height: 1,
-                        
-                      ),
-
-                      SizedBox(height: 5,),                      
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.call),
-                          const Text("Call my family at:",style: TextStyle(fontSize: 20,),),
-                        ],
-                      ),
-                      TextButton(onPressed: () { 
-                          //Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));            
-                        }, 
-                            child: Text(
-                             "03153427213",  
-                             style: TextStyle(
-                               fontSize: 22, 
-                               color: Color.fromRGBO(95, 37, 133, 1.0), 
-                               fontWeight: FontWeight.w700),),
-                        ), 
-
-                      SizedBox(height: 20,),
-
-                      Divider(
-                        color: Colors.black,
-                        thickness: 1,
-                        height: 1,
-                        
-                      ),
-
-                      SizedBox(height: 5,),
-                      const Text("And i live here:",style: TextStyle(fontSize: 20,),),                      
-                      Padding(
-                        padding: EdgeInsets.only(top: 5.0, left: 8, right: 8, bottom: 5,),
-                        child: const Text("4 Khayaban-e-Johar, H 9/4 H-9, Islamabad, Islamabad Capital Territory 44000",
-                        style: TextStyle(fontSize: 20,color: Color.fromRGBO(95, 37, 133, 1.0),),),
-                      ),
-
-                      SizedBox(height: 5,),
-
-                       CustomButton(
-                        voidCallBack: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => HomePage()),);                            
-                        },
-                        text: 'open map', 
-                        backgroundColor:  Color.fromRGBO(95, 37, 133, 1.0), 
-                        color: Colors.white,
-                        height: 50,
-                        width: 150,
-                      )                                                              
-                    ],
-                  ),
-                )
-              ),
-            )
-          ],
-        ),  
       ),
     );
   }
+
+  Widget _buildProfileDetails() {
+    return ListView(
+      padding: const EdgeInsets.only(top: 8.0, left: 20.0, right: 20),
+      children: [
+        // Profile Header with Avatar
+        
+        const SizedBox(height: 10.0),
+
+        // Text for Phone Number
+        Text(
+          'Your phone number is:',
+          style: const TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+            color: Color.fromRGBO(95, 37, 133, 1.0),
+          ),
+        ),
+        _buildDetailRow(
+          icon: Icons.phone,
+          color: Colors.lightBlue,
+         // title: 'Phone Number',
+          value: _phoneNumber ?? 'Not Available',
+        ),
+        const Divider(),
+
+        // Text for Family Phone Number
+        Text(
+          'Your family phone number is:',
+          style: const TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+            color: Color.fromRGBO(95, 37, 133, 1.0),
+          ),
+        ),
+        _buildDetailRow(
+          icon: Icons.family_restroom_sharp,
+          color: Color(0xFFFFC107),
+          //title: 'Family Phone Number',
+          value: _familyPhoneNumber ?? 'Not Available',
+        ),
+        const Divider(),
+
+        // Text for Home Address
+        Text(
+          'You live here:',
+          style: const TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+            color: Color.fromRGBO(95, 37, 133, 1.0),
+          ),
+        ),
+        _buildDetailRow(
+          icon: Icons.home,
+          color: Colors.lightGreen,
+          //title: 'Home Address',
+          value: _addressHome ?? 'Not Available',
+        ),
+         SizedBox(height: 10,),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9, // 80% of screen width
+              child: ElevatedButton.icon(
+                onPressed: () => _openGoogleMaps(_latitude, _longitude), // Google Maps function (or empty if not used)
+                icon: const Icon(Icons.my_location_sharp,color: Colors.white,),
+                label: const Text("Open Home Location",style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[400],
+                  padding: EdgeInsets.symmetric(vertical: 13), // Adjust vertical padding to make it uniform
+                ),
+              ),
+            ),
+            SizedBox(height: 10,),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9, // 80% of screen width
+              child: ElevatedButton.icon(
+                onPressed: () => _launchPhoneCall(_familyPhoneNumber),
+                icon: const Icon(Icons.phone_in_talk, color: Colors.white,),
+                label: const Text("Call to Family", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[400],
+                  padding: EdgeInsets.symmetric(vertical: 13), // Adjust vertical padding to make it uniform
+                ),
+              ),
+            ),
+            
+          ],
+        ),
+      ],
+    );
+  }
+
+// Helper Widget for Each Row
+  Widget _buildDetailRow({
+    required IconData icon,
+    // required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24.0),
+          const SizedBox(width: 15.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [               
+                const SizedBox(height: 5.0),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+   Future<void> _openGoogleMaps(double latitude, double longitude) async {
+    final url = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      print("Could not launch Google Maps.");
+    }
+  }
+
+// Function to Launch Phone Call
+  Future<void> _launchPhoneCall(String? familyPhoneNumber) async {
+    if (familyPhoneNumber != null && familyPhoneNumber.isNotEmpty) {
+      final uri = Uri.parse('tel:$familyPhoneNumber');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        print("Could not launch phone call.");
+      }
+    }
+  }
+
 }

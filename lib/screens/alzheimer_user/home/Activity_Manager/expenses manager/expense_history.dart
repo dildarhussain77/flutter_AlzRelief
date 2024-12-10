@@ -1,75 +1,98 @@
 import 'package:alzrelief/screens/alzheimer_user/home/Activity_Manager/expenses%20manager/expense.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/Activity_Manager/expenses%20manager/expenses_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'expenses_data.dart'; // Update the path based on your folder structure.
 
-class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch all expenses when the screen is initialized
+    final expenseData = Provider.of<ExpenseData>(context, listen: false);
+    expenseData.fetchAllExpenses();
+  }
 
   @override
   Widget build(BuildContext context) {
     final expenseData = Provider.of<ExpenseData>(context);
-    final allTransactions = expenseData.allTransactions;
 
-    // Group transactions by date
-    final groupedTransactions = groupTransactionsByDate(allTransactions);
+    // Group expenses by date
+    Map<String, List<Expense>> groupedExpenses = {};
+    for (var expense in expenseData.expenses) {
+      String dateKey = '${expense.date.year}-${expense.date.month}-${expense.date.day}';
+      if (groupedExpenses.containsKey(dateKey)) {
+        groupedExpenses[dateKey]!.add(expense);
+      } else {
+        groupedExpenses[dateKey] = [expense];
+      }
+    }
+
+    List<String> dates = groupedExpenses.keys.toList();
+    dates.sort((a, b) => b.compareTo(a));  // Sort dates in descending order
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transaction History'),
+        title: const Text(
+          'All Transactions',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: ListView.builder(
-        itemCount: groupedTransactions.length,
-        itemBuilder: (context, index) {
-          final date = groupedTransactions.keys.elementAt(index);
-          final transactions = groupedTransactions[date]!;
+      body: dates.isEmpty
+          ? const Center(child: Text('No Expenses Found'))
+          : ListView.builder(
+              itemCount: dates.length,
+              itemBuilder: (context, dateIndex) {
+                String dateKey = dates[dateIndex];
+                List<Expense> expensesForDate = groupedExpenses[dateKey]!;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  DateFormat('MMMM d, yyyy').format(date),
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = transactions[index];
-                  return ListTile(
-                    title: Text(transaction.title),
-                    subtitle: Text(transaction.amount.toStringAsFixed(2)),
-                    trailing: Text(
-                      transaction.isIncome ? 'Income' : 'Expense',
-                      style: TextStyle(
-                        color: transaction.isIncome ? Colors.green : Colors.red,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Divider and date header
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Container(
+                        color: Color.fromRGBO(95, 37, 133, 1.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            dateKey,  // Date header
+                            style: const TextStyle(
+                                color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
-              Divider(),
-            ],
-          );
-        },
-      ),
+                    // Expenses for this date
+                    ...expensesForDate.map((expense) {
+                      return ListTile(
+                        title: Text(expense.title),
+                        subtitle: Text(expense.date.toString()),
+                        trailing: Text(
+                          '${expense.isIncome ? '+' : '-'}${expense.amount.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: expense.isIncome ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    // Divider after the last expense for this date
+                    if (dateIndex < dates.length - 1)
+                      const Divider(),  // Divider between groups of expenses
+                  ],
+                );
+              },
+            ),
     );
-  }
-
-  Map<DateTime, List<Expense>> groupTransactionsByDate(List<Expense> transactions) {
-    final groupedTransactions = <DateTime, List<Expense>>{};
-    for (var transaction in transactions) {
-      final date = DateTime(transaction.date.year, transaction.date.month, transaction.date.day);
-      if (!groupedTransactions.containsKey(date)) {
-        groupedTransactions[date] = [];
-      }
-      groupedTransactions[date]!.add(transaction);
-    }
-    return Map.fromEntries(groupedTransactions.entries.toList()..sort((a, b) => b.key.compareTo(a.key)));
   }
 }

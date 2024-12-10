@@ -78,7 +78,8 @@ class _GameBoardState extends State<GameBoard> {
     );
   }
 
-    void dispose() {
+    @override
+  void dispose() {
     _timer?.cancel(); // Cancel the timer
     super.dispose();
   }

@@ -1,14 +1,14 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last
+import 'package:alzrelief/screens/family_user/drawer/family_drawer_header.dart';
+import 'package:alzrelief/screens/family_user/drawer/family_drawer_list.dart';
 
-
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_header_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_list.dart';
-
-import 'package:alzrelief/screens/psychologist_user/Appointments/psy_appointments_screen.dart';
+import 'package:alzrelief/screens/psychologist_user/Appointments/appointments_with_alz.dart';
 // import 'package:alzrelief/screens/notification_screen.dart';
 
 import 'package:alzrelief/util/homepagetile.dart';
 import 'package:alzrelief/util/tapnavigation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -20,6 +20,42 @@ class FamilyHomePage extends StatefulWidget {
 }
 
 class _FamilyHomePageState extends State<FamilyHomePage> {
+
+  String? _fullName;
+  //bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('family')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists) {
+          setState(() {
+            _fullName = doc['fullName'];         
+           // _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error fetching profile data: $e');
+
+        // setState(() {
+        //   //_isLoading = false;
+        // });
+      }
+    }
+  }
+
 
    int currentIndex = 0;
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -70,8 +106,8 @@ class _FamilyHomePageState extends State<FamilyHomePage> {
               child: Container(                
                 child: Column(
                   children: [
-                    DrawerHeaderPage(),
-                    MyDrawerList(),
+                    FamilyDrawerHeaderPage(),
+                    FamilyMyDrawerList(),
                     // Add other drawer items here
                   ],
                 ),
@@ -115,7 +151,7 @@ class _FamilyHomePageState extends State<FamilyHomePage> {
                   children: [                    
                     Column(                      
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         SizedBox(height: 10,),
                         Text(
                           "Welcome,", 
@@ -127,13 +163,14 @@ class _FamilyHomePageState extends State<FamilyHomePage> {
                         ),
                       
                         Text(
-                          "Caregiver", 
+                          'Hi, ${_fullName?? "not available"}',
                           style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 15, 
-                            
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
                           ),
-                        ),
+                                
+                        ),                        
                       ],
                     ),
                 
@@ -183,20 +220,20 @@ class _FamilyHomePageState extends State<FamilyHomePage> {
                       child: ListView(
                         children: [
                          
-                          TapNavigation(
-                            child: HomePageTile(
-                              height: 90,
-                              width: 100,
-                              iconAsset: 'assets/images/location.png',
-                              icon: null,
-                              iconColor: Colors.red,
-                              homeTileName: "Location",
-                              homeTileDes: "Track the patient",
-                              color: Colors.lightGreen[200],  
-                            ),
-                            destination: PsyAppointment(),
+                          // TapNavigation(
+                          //   child: HomePageTile(
+                          //     height: 90,
+                          //     width: 100,
+                          //     iconAsset: 'assets/images/location.png',
+                          //     icon: null,
+                          //     iconColor: Colors.red,
+                          //     homeTileName: "Location",
+                          //     homeTileDes: "Track the patient",
+                          //     color: Colors.lightGreen[200],  
+                          //   ),
+                          //   destination: PsyAppointment(),
                             
-                          ),
+                          // ),
 
                           Divider(
                             color: Colors.black,

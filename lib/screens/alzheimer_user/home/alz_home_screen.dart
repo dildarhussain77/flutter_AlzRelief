@@ -1,17 +1,20 @@
-import 'package:alzrelief/screens/alzheimer_user/home/chat/chat_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_list.dart';
+
+import 'package:alzrelief/screens/alzheimer_user/home/appointed%20psychologists/appointed_psychologists.dart';
+import 'package:alzrelief/screens/alzheimer_user/home/drawer/alz_drawer_list.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/emotion_handler.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/Activity_Manager/coginative_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/consultant/consultant_screen.dart';
+import 'package:alzrelief/screens/alzheimer_user/home/Activity_Manager/activities_screen.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/help_me/help_me_screen.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/notifications/notification_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_header_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/appointment/appointment_screen.dart';
+import 'package:alzrelief/screens/alzheimer_user/home/drawer/alz_drawer_header_screen.dart';
+import 'package:alzrelief/screens/alzheimer_user/home/appointments%20show/appointments_with_psy.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/Todo/screen.dart/to_do_screen.dart';
+import 'package:alzrelief/screens/alzheimer_user/psychologists%20search/search_psychologist_screen.dart';
 import 'package:alzrelief/util/uihelper.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/emotionfacepage.dart';
 import 'package:alzrelief/util/homepagetile.dart';
 import 'package:alzrelief/util/tapnavigation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AlzheimerHomePage extends StatefulWidget {
@@ -22,8 +25,48 @@ class AlzheimerHomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<AlzheimerHomePage> {
+
+  // String psychologistId = '';
+  // String psychologistName = '';
+
+  String? _fullName;
+  //bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('alzheimer')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists) {
+          setState(() {
+            _fullName = doc['fullName'];         
+           // _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error fetching profile data: $e');
+
+        // setState(() {
+        //   //_isLoading = false;
+        // });
+      }
+    }
+  }
+
+
   int currentIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();  
 
   void onItemTapped(int index) {
     setState(() {
@@ -36,18 +79,31 @@ class _HomePageState extends State<AlzheimerHomePage> {
           context, MaterialPageRoute(builder: (context) => AlzheimerHomePage()));
         break;
       case 1:
-        // Navigate to the chats screen
-        Navigator.push(
-          context, MaterialPageRoute(builder: (context) => ChatPage()));
+        final user = FirebaseAuth.instance.currentUser;
+  
+        if (user != null) {
+            final String alzheimerUserId = user.uid; // Get logged-in user ID dynamically.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AppointedPsychologistsPage(alzheimerUserId: alzheimerUserId),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("You must be logged in to view appointed psychologists.")),
+            );
+          }
         break;
+        
       case 2:
         // Navigate to the consultants screen
         Navigator.push(
-          context, MaterialPageRoute(builder: (context) => ConsultantPage()));
+          context, MaterialPageRoute(builder: (context) => PsychologistSearchScreen()));
         break;
       case 3:
         Navigator.push(
-          context, MaterialPageRoute(builder: (context) => NotificationPage()));
+          context, MaterialPageRoute(builder: (context) => AlzheimerNotificationScreen()));
         // _scaffoldKey.currentState?.openEndDrawer();
         break;
     }
@@ -64,8 +120,8 @@ class _HomePageState extends State<AlzheimerHomePage> {
               child: Container(                
                 child: Column(
                   children: [
-                    DrawerHeaderPage(),
-                    MyDrawerList(),
+                    AlzheimerDrawerHeaderPage(),
+                    AlzheimerMyDrawerList(),
                     // Add other drawer items here
                   ],
                 ),
@@ -81,20 +137,20 @@ class _HomePageState extends State<AlzheimerHomePage> {
           selectedLabelStyle: TextStyle(fontSize: 12, color: Colors.black),
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home, color: Colors.black), label: "Home"),
+                icon: Icon(Icons.home, color: Colors.orangeAccent), label: "Home"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.message, color: Colors.black), label: "Chats"),
+                icon: Icon(Icons.message, color: Colors.lightBlue), label: "Chats"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person_search, color: Colors.black),
-                label: "Consultants"),
+                icon: Icon(Icons.person_search, color: Colors.lightGreen),
+                label: "Psychologists"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_active, color: Colors.black), label: "Alerts"),
+                icon: Icon(Icons.notifications_active, color: Colors.redAccent), label: "Alerts"),
           ],
         ),
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              padding:  EdgeInsets.symmetric(horizontal: 25.0),
               child: Column(
                 children: [
                   //greeting row
@@ -103,15 +159,15 @@ class _HomePageState extends State<AlzheimerHomePage> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           SizedBox(
                             height: 10,
                           ),
                           Text(
-                            "Hi, Dildar!",
+                            'Hi, ${_fullName ?? "not available"}',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 ),
                                 
@@ -250,7 +306,7 @@ class _HomePageState extends State<AlzheimerHomePage> {
                         },
                         text: 'Help me',
                         backgroundColor: Colors.white,
-                        color: Color.fromRGBO(95, 37, 133, 1.0),
+                        color: Colors.black,
                         height: 40,
                         width: 130,
                       )
@@ -282,7 +338,7 @@ class _HomePageState extends State<AlzheimerHomePage> {
                         child: ListView(
                           children: [
                             TapNavigation(
-                              destination: CoginativePage(),
+                              destination: ActivitiesPage(),
                               child: HomePageTile(
                                 height: 87,
                                 width: 100,
@@ -302,14 +358,19 @@ class _HomePageState extends State<AlzheimerHomePage> {
                                 width: 100,
                                 icon: null,
                                 iconColor: Colors.lightBlue,
-                                homeTileName: "Todo List",
+                                homeTileName: "To-Do List",
                                 homeTileDes: "Organize your events",
                                 color: Colors.lightBlue[200],
-                                iconAsset: 'assets/images/schedule.png',
+                                iconAsset: 'assets/images/todo.png',
                               ),
                             ),
+                            
+
                             TapNavigation(
-                              destination: AppointmentPage(),
+                              
+                              destination: ToDoPage(                                                                
+                                
+                              ),
                               child: HomePageTile(
                                 height: 87,
                                 width: 100,

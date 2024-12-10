@@ -1,17 +1,15 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last
 
 
-
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_header_screen.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/drawer/drawer_list.dart';
-import 'package:alzrelief/screens/psychologist_user/Appointments/psy_appointments_screen.dart';
-
-import 'package:alzrelief/util/appointmentcard.dart';
-// import 'package:alzrelief/screens/notification_screen.dart';
-
-
+import 'package:alzrelief/screens/psychologist_user/Appointments/appointments_with_alz.dart';
+import 'package:alzrelief/screens/psychologist_user/appointed%20azheimers/appointed_alzheimers.dart';
+import 'package:alzrelief/screens/psychologist_user/drawer/psy_drawer_header.dart';
+import 'package:alzrelief/screens/psychologist_user/drawer/psy_drawer_list.dart';
+import 'package:alzrelief/screens/psychologist_user/patient%20requests/patient_request.dart';
 import 'package:alzrelief/util/homepagetile.dart';
 import 'package:alzrelief/util/tapnavigation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -28,6 +26,41 @@ class _PsyHomePageState extends State<PsyHomePage> {
    int currentIndex = 0;
    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+    String? _fullName;
+  //bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('psychologist')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists) {
+          setState(() {
+            _fullName = doc['fullName'];         
+           // _isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error fetching profile data: $e');
+
+        // setState(() {
+        //   //_isLoading = false;
+        // });
+      }
+    }
+  }
+
   void onItemTapped(int index) {
     setState(() {
       currentIndex = index;
@@ -36,27 +69,90 @@ class _PsyHomePageState extends State<PsyHomePage> {
     // Handle navigation based on the selected index
     switch (currentIndex) {
       case 0:
-        // Navigator.push(
-        //   context, MaterialPageRoute(builder: (context) => HomePage()));
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context) => PsyHomePage()));
         break;
       case 1:
         // Navigate to the chats screen
-        // Navigator.push(
-        //   context, MaterialPageRoute(builder: (context) => ChatPage()));
+        final user = FirebaseAuth.instance.currentUser;
+  
+        if (user != null) {
+            final String psychologistId = user.uid; // Get logged-in user ID dynamically.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AppointedAlzheimersPage(psychologistId: psychologistId),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("You must be logged in to view appointed psychologists.")),
+            );
+          }
         break;
       case 2:
         // Navigate to the consultants screen
-        // Navigator.push(
-        //   context, MaterialPageRoute(builder: (context) => ConsultantPage()));
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context) => AlzheimerRequestPage()));
         break;
       case 3:
-        //Navigator.push(
-        //   context, MaterialPageRoute(builder: (context) => NotificationPage()));
-        // // _scaffoldKey.currentState?.openEndDrawer();
+        // final user = FirebaseAuth.instance.currentUser;
+  
+        // if (user != null) {
+        //     final String psychologistId = user.uid; // Get logged-in user ID dynamically.
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => AppointmentsWithAlzheimerPage(psychologistId: psychologistId),
+        //       ),
+        //     );
+        //   } else {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       SnackBar(content: Text("You must be logged in to view appointed psychologists.")),
+        //     );
+        //   }
+       
         break;
         
     }
   }
+
+  // Function to fetch IDs and navigate
+  Future<void> fetchIds(BuildContext context, String psychologistId, String alzheimerUserId) async {
+  try {
+    // Fetch the psychologist document using the given psychologistId
+    DocumentSnapshot psychologistDoc = await FirebaseFirestore.instance
+        .collection('psychologist')
+        .doc(psychologistId) // Pass the actual psychologist user ID here
+        .get();
+
+    // Fetch the Alzheimer document using the given alzheimerUserId
+    DocumentSnapshot alzheimerDoc = await FirebaseFirestore.instance
+        .collection('alzheimer')
+        .doc(alzheimerUserId) // Pass the actual Alzheimer user ID here
+        .get();
+
+    // Use the fetched IDs
+    final String fetchedPsychologistId = psychologistDoc.id;
+    final String fetchedAlzheimerId = alzheimerDoc.id;
+
+    // Navigate to ViewAppointmentsScreen with these IDs
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AppointmentsWithAlzheimersScreen(
+          psychologistId: fetchedPsychologistId,
+          alzheimerId: fetchedAlzheimerId,
+        ),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching IDs: $e')),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +167,8 @@ class _PsyHomePageState extends State<PsyHomePage> {
               child: Container(                
                 child: Column(
                   children: [
-                    DrawerHeaderPage(),
-                    MyDrawerList(),
+                    PsychologistDrawerHeaderPage(),
+                    PsychologistMyDrawerList(),
                     // Add other drawer items here
                   ],
                 ),
@@ -92,14 +188,14 @@ class _PsyHomePageState extends State<PsyHomePage> {
           
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home, color: Colors.black), label: "Home"),
+                icon: Icon(Icons.home, color: Color.fromRGBO(95, 37, 133, 1.0)), label: "Home"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.message, color: Colors.black), label: "Chats"),
+                icon: Icon(Icons.message, color: Color.fromRGBO(95, 37, 133, 1.0)), label: "Chats"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.people, color: Colors.black),
-                label: "Patients"),
+                icon: Icon(Icons.medical_services, color: Color.fromRGBO(95, 37, 133, 1.0)),
+                label: "Alzheimers"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_active, color: Colors.black), label: "Alerts"),
+                icon: Icon(Icons.notifications_active, color: Color.fromRGBO(95, 37, 133, 1.0)), label: "Alerts"),
           ],                 
         ),      
         body: Column(
@@ -117,7 +213,7 @@ class _PsyHomePageState extends State<PsyHomePage> {
                   children: [                    
                     Column(                      
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         SizedBox(height: 10,),
                         Text(
                           "Welcome,", 
@@ -129,13 +225,14 @@ class _PsyHomePageState extends State<PsyHomePage> {
                         ),
                       
                         Text(
-                          "Ms. Kainat Malik", 
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 15, 
-                            
+                            'Hi, ${_fullName ?? "not available"}',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                ),
+                                
                           ),
-                        ),
                       ],
                     ),
                 
@@ -185,19 +282,6 @@ class _PsyHomePageState extends State<PsyHomePage> {
                       child: ListView(
                         children: [
                          
-                          TapNavigation(
-                            child: HomePageTile(
-                              height: 90,
-                              width: 100,
-                              iconAsset: 'assets/images/appointment.png',
-                              icon: null,
-                              iconColor: Colors.red,
-                              homeTileName: "Appointments",
-                              homeTileDes: "View Patient Appointments",
-                              color: Colors.orange[200],  
-                            ),
-                            destination: PsyAppointment(),
-                          ),
                           Divider(
                             color: Colors.black,
                             thickness: 1,
@@ -213,37 +297,55 @@ class _PsyHomePageState extends State<PsyHomePage> {
                                 child: Text("Upcoming Appointments", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                               ),
                             ],
-                          ),
+                          ), 
 
-                          AppointmentCard(
-                            patientName: "Dildar Huusain Bhutto",
-                            diseaseName: "Hypertension",
-                            appointmentTime: "10:00 AM",
-                            patientImage: 'assets/images/mypic.jpg',
-                          ),
-                          AppointmentCard(
-                            patientName: "Aleena Javed",
-                            diseaseName: "Hypertension",
-                            appointmentTime: "11:30 AM",
-                            patientImage: 'assets/images/mypic.jpg',
-                          ),
-                          // AppointmentCard(
-                          //   patientName: "Muhammad Wajid",
-                          //   diseaseName: "Asthma",
-                          //   appointmentTime: "1:00 PM",
-                          //   patientImage: 'assets/mypic.jpg',
-                          // ),
 
-                          TextButton(onPressed: () { 
-                          //Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));            
-                        }, 
-                            child: Text(
-                             "See more",  
-                             style: TextStyle(
-                               fontSize: 20, 
-                               color: Colors.black, 
-                               fontWeight: FontWeight.w700),),
+                          // Button to fetch and view the schedule
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            String? psychologistId = FirebaseAuth.instance.currentUser?.uid; // Get current psychologist's ID
+                            
+                            if (psychologistId != null) {
+                              try {
+                                // Query the first Alzheimer user (replace logic if needed)
+                                QuerySnapshot alzheimerQuery = await FirebaseFirestore.instance
+                                    .collection('alzheimer')
+                                    .limit(1) // Limit to fetch only one document
+                                    .get();
+
+                                if (alzheimerQuery.docs.isNotEmpty) {
+                                  String alzheimerUserId = alzheimerQuery.docs.first.id; // Fetch the ID of the first Alzheimer user
+                                  
+                                  // Call fetchIds with dynamically fetched IDs
+                                  await fetchIds(context, psychologistId, alzheimerUserId);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('No Alzheimer user found in the database.')),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error fetching Alzheimer user: $e')),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('No logged-in psychologist found.')),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5F2585),
+                          ),
+                          child: const Text(
+                            'View Appointments',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
+                        ),          
+
+
 
 
                         ],

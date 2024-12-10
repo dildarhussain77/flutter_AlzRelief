@@ -12,7 +12,9 @@ class CustomTextField extends StatelessWidget {
     required this.controller,
     required this.text,
     required this.iconData,
-    required this.toHide,});
+    required this.toHide, 
+    //required IconData icon, required String hint, required Future<Null> Function() onTap, required bool readOnly,
+    });
 
   @override
   Widget build(BuildContext context) {

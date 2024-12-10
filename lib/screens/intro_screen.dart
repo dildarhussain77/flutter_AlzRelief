@@ -1,6 +1,6 @@
 
 
-import 'package:alzrelief/screens/auth/login_screen.dart';
+import 'package:alzrelief/screens/sign%20in%20with%20google/sign_in_with_google_Role.dart';
 import 'package:alzrelief/util/onboardingcards.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -59,7 +59,7 @@ class _IntroPageState extends State<IntroPage> {
   // Navigate to the login page
     Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (context) => LoginPage()),
+    MaterialPageRoute(builder: (context) => SignInWithGoogleRolePage()),
     );
   }
 
