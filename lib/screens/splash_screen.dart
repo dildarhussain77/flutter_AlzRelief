@@ -1,9 +1,9 @@
 import 'dart:async'; // Importing the dart:async library for Timer functionality
 import 'package:alzrelief/screens/two%20Users%20Registration%20Forms/alzheimerRegistration.dart';
-import 'package:alzrelief/screens/alzheimer_user/home/alz_home_screen.dart';
-import 'package:alzrelief/screens/other_user/Home/family_home.dart';
+import 'package:alzrelief/screens/user1%20alzheimer/home/alz_home_screen.dart';
+import 'package:alzrelief/screens/user3%20family/Home/family_home.dart';
 import 'package:alzrelief/screens/intro_screen.dart'; // Importing the IntroPage screen
-import 'package:alzrelief/screens/psychologist_user/Home/psy_home_screen.dart';
+import 'package:alzrelief/screens/user2%20psychologist/Home/psy_home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart'; // Importing the Flutter Material library for UI components
 

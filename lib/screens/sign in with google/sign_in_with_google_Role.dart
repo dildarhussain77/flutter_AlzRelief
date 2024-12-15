@@ -1,6 +1,6 @@
-import 'package:alzrelief/screens/alzheimer_user/home/alz_home_screen.dart';
-import 'package:alzrelief/screens/other_user/Home/family_home.dart';
-import 'package:alzrelief/screens/psychologist_user/Home/psy_home_screen.dart';
+import 'package:alzrelief/screens/user1%20alzheimer/home/alz_home_screen.dart';
+import 'package:alzrelief/screens/user3%20family/Home/family_home.dart';
+import 'package:alzrelief/screens/user2%20psychologist/Home/psy_home_screen.dart';
 import 'package:alzrelief/screens/userselectionscreen.dart';
 import 'package:alzrelief/util/image_logo_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
