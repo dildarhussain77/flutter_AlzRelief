@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AppointedAlzheimersPage extends StatelessWidget {
   final String psychologistId;
 
-  const AppointedAlzheimersPage({Key? key, required this.psychologistId}) : super(key: key);
+  const AppointedAlzheimersPage({super.key, required this.psychologistId});
 
   Future<List<Map<String, dynamic>>> _fetchAppointedAlzheimers() async {
     try{
@@ -127,8 +127,8 @@ class AppointedAlzheimersPage extends StatelessWidget {
                                     radius: 30,
                                   )
                                 : CircleAvatar(
-                                    child: Icon(Icons.person),
                                     radius: 30,
+                                    child: Icon(Icons.person),
                                   ),
                             title: Text(
                               alzheimer['fullName'] ?? "Unknown",

@@ -6,11 +6,11 @@ class AppointmentsWithPsychologistsScreen extends StatefulWidget {
   final String psychologistId;  
 
   const AppointmentsWithPsychologistsScreen({
-    Key? key,
+    super.key,
     required this.alzheimerId,
     required this.psychologistId,
     
-  }) : super(key: key);
+  });
 
   @override
   State<AppointmentsWithPsychologistsScreen> createState() => _AppointmentsWithPsychologistsScreenState();
@@ -27,28 +27,53 @@ class _AppointmentsWithPsychologistsScreenState extends State<AppointmentsWithPs
 
   // Fetch schedules from Firebase
   Future<void> _fetchSchedules() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
+  try {
+    // Fetch all appointed psychologists for the given Alzheimer user
+    final appointedPsychologistsSnapshot = await FirebaseFirestore.instance
+        .collection('alzheimer')
+        .doc(widget.alzheimerId)
+        .collection('appointedPsychologists')
+        .get();
+
+    List<Map<String, dynamic>> fetchedSchedules = [];
+
+    // Iterate over each psychologist document
+    for (var psychologistDoc in appointedPsychologistsSnapshot.docs) {
+      // Fetch the schedules for each psychologist
+      final schedulesSnapshot = await FirebaseFirestore.instance
           .collection('alzheimer')
-          .doc(widget.alzheimerId)          
+          .doc(widget.alzheimerId)
           .collection('appointedPsychologists')
-          .doc(widget.psychologistId)          
+          .doc(psychologistDoc.id)
           .collection('schedules')
           .get();
 
-      setState(() {
-        schedules = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id; // Add document ID for updates
-          return data;
-        }).toList();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching schedules: $e')),
-      );
+      // Add each schedule to the fetchedSchedules list
+      for (var scheduleDoc in schedulesSnapshot.docs) {
+        final scheduleData = scheduleDoc.data();
+        scheduleData['id'] = scheduleDoc.id; // Add document ID for updates
+        scheduleData['psychologistName'] = psychologistDoc['psychologistName']; // Add psychologist name
+        fetchedSchedules.add(scheduleData);
+      }
     }
+
+    // Update the state with the fetched schedules
+    setState(() {
+      schedules = fetchedSchedules;
+    });
+
+    if (schedules.isEmpty) {
+      print("No schedules found!");
+    } else {
+      print("Schedules fetched successfully!");
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching schedules: $e')),
+    );
   }
+}
+
 
   // Update appointment completion status in Firebase
   Future<void> _updateAppointmentStatus(String scheduleId, bool isCompleted) async {
@@ -156,7 +181,7 @@ class _AppointmentsWithPsychologistsScreenState extends State<AppointmentsWithPs
                             ),
                           ),
                           subtitle: Text(
-                            "Date: ${schedule["date"]}\nTime: ${schedule["time"]}\nPsychologist: ${schedule["psychologistName"]}",
+                            "Date: ${schedule["date"]}\nTime: ${schedule["time"]}\nWith: ${schedule["psychologistName"]}",
                             style: const TextStyle(color: Colors.grey),
                           ),
                           trailing: IconButton(

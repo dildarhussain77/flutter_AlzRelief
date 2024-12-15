@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:alzrelief/screens/family_user/Home/family_home.dart';
+import 'package:alzrelief/screens/other_user/Home/family_home.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';

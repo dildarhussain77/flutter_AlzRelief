@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'expenses_data.dart'; // Update the path based on your folder structure.
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -85,7 +85,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                     // Divider after the last expense for this date
                     if (dateIndex < dates.length - 1)
                       const Divider(),  // Divider between groups of expenses

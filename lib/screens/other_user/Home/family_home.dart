@@ -1,15 +1,7 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last
-import 'package:alzrelief/screens/family_user/drawer/family_drawer_header.dart';
-import 'package:alzrelief/screens/family_user/drawer/family_drawer_list.dart';
-
-import 'package:alzrelief/screens/psychologist_user/Appointments/appointments_with_alz.dart';
-// import 'package:alzrelief/screens/notification_screen.dart';
-
-import 'package:alzrelief/util/homepagetile.dart';
-import 'package:alzrelief/util/tapnavigation.dart';
+import 'package:alzrelief/screens/other_user/drawer/family_drawer_header.dart';
+import 'package:alzrelief/screens/other_user/drawer/family_drawer_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 
 class FamilyHomePage extends StatefulWidget {

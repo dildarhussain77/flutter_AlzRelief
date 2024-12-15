@@ -7,11 +7,11 @@ class VideoCallScreen extends StatefulWidget {
   final String channelName;
 
   const VideoCallScreen({
-    Key? key, 
+    super.key, 
     required this.engine, 
     required this.peerId,
     required this.channelName,
-  }) : super(key: key);
+  });
 
   @override
   _VideoCallScreenState createState() => _VideoCallScreenState();
@@ -32,17 +32,31 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   void _setupEventHandlers() {
     widget.engine.registerEventHandler(
       RtcEngineEventHandler(
-        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          setState(() {
-            _remoteUid = remoteUid;
-          });
-        },
-        onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
-          setState(() {
-            _remoteUid = null;
-          });
-        },
-      ),
+    onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+      setState(() {
+        _remoteUid = remoteUid; // Update remote user UID
+      });
+      print("Remote user joined: $remoteUid");
+    },
+    onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+      setState(() {
+        _remoteUid = null; // Update when remote user leaves
+      });
+      print("Remote user left: $remoteUid");
+    },
+  ),
+      // RtcEngineEventHandler(
+      //   onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+      //     setState(() {
+      //       _remoteUid = remoteUid;
+      //     });
+      //   },
+      //   onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+      //     setState(() {
+      //       _remoteUid = null;
+      //     });
+      //   },
+      // ),
     );
   }
 
@@ -86,7 +100,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                         rtcEngine: widget.engine,
                         canvas: VideoCanvas(
                           uid: _remoteUid!,
-                          //renderMode: VideoRenderMode.Hidden,  // Corrected render mode
+                          renderMode: RenderModeType.renderModeHidden,  // Corrected render mode
                         ),
                       ),
                     )
@@ -101,18 +115,20 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 width: 100,
                 height: 150,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.red, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: AgoraVideoView(
+                child: _remoteUid != null
+                ? AgoraVideoView(
                   controller: VideoViewController(
                     rtcEngine: widget.engine,
                     canvas: VideoCanvas(
-                      uid: 0,
-                      //renderMode: VideoRenderMode.Hidden,  // Corrected render mode
+                      uid: _remoteUid!,
+                      renderMode: RenderModeType.renderModeHidden, // Corrected render mode
                     ),
                   ),
-                ),
+                )
+                : const SizedBox.shrink(),
               ),
             ),
 
@@ -128,7 +144,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   IconButton(
                     icon: Icon(
                       _isMuted ? Icons.mic_off : Icons.mic,
-                      color: Colors.white,
+                      color: Colors.green,
                     ),
                     onPressed: _toggleMute,
                   ),
@@ -137,14 +153,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   IconButton(
                     icon: Icon(
                       _isCameraOff ? Icons.videocam_off : Icons.videocam,
-                      color: Colors.white,
+                      color: Colors.green,
                     ),
                     onPressed: _toggleCamera,
                   ),
 
                   // Switch Camera
                   IconButton(
-                    icon: const Icon(Icons.switch_camera, color: Colors.white),
+                    icon: const Icon(Icons.switch_camera, color: Colors.blue),
                     onPressed: _switchCamera,
                   ),
 

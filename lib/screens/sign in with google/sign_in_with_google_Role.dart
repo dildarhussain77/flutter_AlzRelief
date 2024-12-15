@@ -1,9 +1,8 @@
 import 'package:alzrelief/screens/alzheimer_user/home/alz_home_screen.dart';
-import 'package:alzrelief/screens/family_user/Home/family_home.dart';
+import 'package:alzrelief/screens/other_user/Home/family_home.dart';
 import 'package:alzrelief/screens/psychologist_user/Home/psy_home_screen.dart';
 import 'package:alzrelief/screens/userselectionscreen.dart';
 import 'package:alzrelief/util/image_logo_helper.dart';
-import 'package:alzrelief/util/uihelper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +53,8 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
 
         // Check Firestore collections
         final collections = {
-          'family': FamilyHomePage(),
+          //'family': FamilyHomePage(),
+          
           'alzheimer': AlzheimerHomePage(),
           'psychologist': PsyHomePage(),
         };
@@ -99,7 +99,7 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
               children: [
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                      const EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
                   child: Stack(
                     children: [
                       Align(
@@ -111,10 +111,24 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                           },
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 7.0, left: 8, right: 8,bottom: 20),
+                        child: Center(
+                          child: const Text(
+                              "Sign in",
+                              style: TextStyle(
+                                  fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                        ),
+                      ),
                       Center(
-                        child: LogoImage(
-                          imagePath: 'assets/images/login.png',
-                          borderColor: null,
+                        child: SizedBox(
+                          width: 270,
+                          height: 300,
+                          child: LogoImage(
+                            imagePath: 'assets/images/login.png',
+                            borderColor: null,
+                          ),
                         ),
                       ),
                     ],
@@ -123,7 +137,7 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.only(
-                      top: 10,
+                      top: 15,
                       left: 5,
                       right: 5,
                     ),
@@ -142,6 +156,7 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                               fontSize: 28, fontWeight: FontWeight.bold, color: Color.fromRGBO(95, 37, 133, 1.0)),
                         ),
                         const SizedBox(height: 10),
+                        Divider(),
                         Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: const Text(
@@ -154,7 +169,10 @@ class _SignInWithGoogleRolePageState extends State<SignInWithGoogleRolePage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 5),
+                        Divider(),
+                        const SizedBox(height: 5),
+                        
                         // Google Sign-In button, keep size and design the same
                         SizedBox(
                           width: 210,

@@ -1,7 +1,7 @@
 import 'dart:async'; // Importing the dart:async library for Timer functionality
-import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/alzheimerRegistration.dart';
+import 'package:alzrelief/screens/two%20Users%20Registration%20Forms/alzheimerRegistration.dart';
 import 'package:alzrelief/screens/alzheimer_user/home/alz_home_screen.dart';
-import 'package:alzrelief/screens/family_user/Home/family_home.dart';
+import 'package:alzrelief/screens/other_user/Home/family_home.dart';
 import 'package:alzrelief/screens/intro_screen.dart'; // Importing the IntroPage screen
 import 'package:alzrelief/screens/psychologist_user/Home/psy_home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     
     // Navigate to IntroPage after a 3-second delay
-    Timer(Duration(seconds: 3), () { 
+    Timer(Duration(seconds: 2), () { 
       _checkUserStatus();
     });
   }

@@ -1,6 +1,6 @@
 
 
-import 'package:alzrelief/screens/family_user/drawer/profile/family_profile.dart';
+import 'package:alzrelief/screens/other_user/drawer/profile/family_profile.dart';
 import 'package:alzrelief/screens/sign%20in%20with%20google/sign_in_with_google_Role.dart';
 import 'package:flutter/material.dart';
 

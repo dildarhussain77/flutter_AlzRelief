@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:alzrelief/screens/alzheimer_user/home/alz_home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -75,16 +76,7 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
   //     });
   //   }
   // }
-  Future<void> _getImageFromGallery() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _profileImagePath = pickedImage.path;
-      });
-    }
-  }
+ 
 
 
   // Function to get permission and location
@@ -116,6 +108,17 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
     });
   }
 
+   Future<void> _getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _profileImagePath = pickedImage.path;
+      });
+    }
+  }
+
   Future<String?> _uploadImageToStorage(String imagePath) async {
     try {
       final file = File(imagePath);
@@ -123,12 +126,18 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
           .ref()
           .child('alzheimer_profiles/${DateTime.now().millisecondsSinceEpoch}');
       final uploadTask = storageRef.putFile(file);
-      final snapshot = await uploadTask;
-    return await snapshot.ref.getDownloadURL();
-    // Get the download URL
-    // String downloadUrl = await snapshot.ref.getDownloadURL();
-    // // Debugging
-    // print('Image uploaded successfully, URL: $downloadUrl');  
+final snapshot = await uploadTask.whenComplete(() => null);
+
+      //log(snapshot.toString());
+       
+    final String downloadUrl = await snapshot.ref.getDownloadURL();
+    
+  
+    print('Image uploaded successfully, URL: $downloadUrl'); 
+    return downloadUrl;
+      
+    //return await snapshot.ref.getDownloadURL();
+    
     // return downloadUrl;
     } catch (e) {
       print('Error uploading image: $e');
@@ -152,6 +161,16 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('User not logged in. Please log in to continue.'),
         ));
+      }
+
+      if (alzheimer.profileImageUrl != null) {
+        await FirebaseFirestore.instance
+            .collection('alzheimer')
+            .doc(userId)
+            .set(alzheimer.toMap());
+      } else {
+        // Handle the case where there's no image URL (optional)
+        print('No image uploaded for this Alzheimer record.');
       }
     } catch (e) {
       print('Error saving Alzheimer: $e');
@@ -180,13 +199,6 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
     if (_profileImagePath != null) {
       profileImageUrl = await _uploadImageToStorage(_profileImagePath!);
     }
-
-//     if (_profileImagePath != null && _profileImagePath!.isNotEmpty) {
-//   profileImageUrl = await _uploadImageToStorage(_profileImagePath!);
-// } else {
-//   print('Profile image path is null or empty');
-//   // Handle error or show a message
-// }
 
     Alzheimer alzheimer = Alzheimer(
       fullName: _fullNameController.text.trim(),
@@ -220,14 +232,14 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
 
     final screenWidth = MediaQuery.of(context).size.width;
    // final screenHeight = MediaQuery.of(context).size.height;
-
     // Scaling factors
     double paddingScale = screenWidth / 375.0; // Base width for scaling
    // double textScale = MediaQuery.of(context).textScaleFactor;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Alzheimer Registration'),
+        title: Text('Alzheimer Registration', style: TextStyle(color: Colors.white),),
         backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
@@ -316,13 +328,17 @@ class _AlzheimerRegistrationState extends State<AlzheimerRegistration> {
             // Button to get current location
             ElevatedButton(
               onPressed: _getCurrentLocation,
-              child: Text('Get Location'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
+              ),
+              child: Text('Get current Location',style: TextStyle(fontSize: 16.0, color: Colors.white),),
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: _registerAlzheimer,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 15.0),
+                padding: EdgeInsets.symmetric(vertical: 12.0),
                 backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
               ),
               child: Text(

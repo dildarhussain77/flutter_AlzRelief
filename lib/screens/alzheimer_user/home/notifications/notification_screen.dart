@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For formatting dates
 
 class AlzheimerNotificationScreen extends StatefulWidget {
+  const AlzheimerNotificationScreen({super.key});
+
   
   @override
   _AlzheimerNotificationScreenState createState() => _AlzheimerNotificationScreenState();
@@ -65,7 +67,7 @@ class _AlzheimerNotificationScreenState extends State<AlzheimerNotificationScree
           .get();
 
       return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         return {
           'type': data['type'],
           'message': data['message'],
@@ -203,7 +205,7 @@ class _AlzheimerNotificationScreenState extends State<AlzheimerNotificationScree
 class NotificationCard extends StatelessWidget {
   final Map<String, dynamic> notification;
 
-  NotificationCard({required this.notification});
+  const NotificationCard({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {

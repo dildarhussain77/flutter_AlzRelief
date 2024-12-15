@@ -1,6 +1,5 @@
-import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/alzheimerRegistration.dart';
-import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/family/familyRegistration.dart';
-import 'package:alzrelief/screens/Three%20Users%20Registration%20Forms/psychologistRegistration.dart';
+import 'package:alzrelief/screens/two%20Users%20Registration%20Forms/alzheimerRegistration.dart';
+import 'package:alzrelief/screens/two%20Users%20Registration%20Forms/psychologistRegistration.dart';
 import 'package:alzrelief/util/homepagetile.dart';
 import 'package:alzrelief/util/image_logo_helper.dart';
 import 'package:alzrelief/util/tapnavigation.dart';
@@ -56,13 +55,19 @@ class UserSelectionPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [                
-                LogoImage(
-                  imagePath: 'assets/images/user.png',
-                  borderColor: null,
+                SizedBox(
+                   width: 300, // Adjust the width of the container as needed
+                   height: 300,
+                  child: LogoImage(
+                    imagePath: 'assets/images/user.png',
+                    borderColor: null,
+                    
+                  
+                  ),
                 ),
               ],
             ),              
-            const SizedBox(height: 15,),              
+            //const SizedBox(height: 15,),              
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(25),              
@@ -81,7 +86,7 @@ class UserSelectionPage extends StatelessWidget {
                           children: [                            
                             Text("Hi! Choose your category?",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
                             SizedBox(height: 8,),
-                            Text("Select 'Psychologist' if you are a professional psychologist, 'Normal User' if you want to speak to a psychologist, or 'Family/Caregiver' if you are assisting someone in need of psychological support.",style: TextStyle(fontSize: 14)),
+                            Text("Select 'Psychologist' if you are a professional psychologist, 'Normal User' if you want to speak to a psychologist.",style: TextStyle(fontSize: 14)),
                             SizedBox(height: 25,),
 
                             TapNavigation(
@@ -114,20 +119,20 @@ class UserSelectionPage extends StatelessWidget {
                               ),                              
                             ),
 
-                            TapNavigation(
-                              destination: FamilyRegistrationScreen(),
-                              onBeforeNavigate: () => _saveUserRole('family'),                             
-                              child: HomePageTile(
-                                height: 87,
-                                width: 100,
-                                icon: null,
-                                iconColor: Colors.red,
-                                iconAsset: 'assets/images/family.png',
-                                homeTileName: "Family/Caregiver",
-                                homeTileDes: "Supporting a Loved One",
-                                color: Colors.orange[200],                                 
-                              ),
-                            ),                                                      
+                            // TapNavigation(
+                            //   destination: FamilyRegistrationScreen(),
+                            //   onBeforeNavigate: () => _saveUserRole('family'),                             
+                            //   child: HomePageTile(
+                            //     height: 87,
+                            //     width: 100,
+                            //     icon: null,
+                            //     iconColor: Colors.red,
+                            //     iconAsset: 'assets/images/family.png',
+                            //     homeTileName: "Family/Caregiver",
+                            //     homeTileDes: "Supporting a Loved One",
+                            //     color: Colors.orange[200],                                 
+                            //   ),
+                            // ),                                                      
                           ],
                         ),
                       ),                                            

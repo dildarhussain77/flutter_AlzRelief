@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 class AppointedPsychologistsPage extends StatefulWidget {
   final String alzheimerUserId;
 
-  const AppointedPsychologistsPage({Key? key, required this.alzheimerUserId})
-      : super(key: key);
+  const AppointedPsychologistsPage({super.key, required this.alzheimerUserId});
 
   @override
   State<AppointedPsychologistsPage> createState() => _AppointedPsychologistsPageState();
@@ -133,8 +132,8 @@ class _AppointedPsychologistsPageState extends State<AppointedPsychologistsPage>
                                     radius: 30,
                                   )
                                 : CircleAvatar(
-                                    child: Icon(Icons.person),
                                     radius: 30,
+                                    child: Icon(Icons.person),
                                   ),
                             title: Text(
                               psychologist['fullName'] ?? "Unknown",

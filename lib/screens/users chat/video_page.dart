@@ -8,10 +8,10 @@ class VideoCallPage extends StatefulWidget {
   final String peerId;
 
   const VideoCallPage({
-    Key? key, 
-    required this.userId, 
-    required this.peerId
-  }) : super(key: key);
+    super.key,
+    required this.userId,
+    required this.peerId,
+  });
 
   @override
   _VideoCallPageState createState() => _VideoCallPageState();
@@ -22,6 +22,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   late RtcEngine _engine;
   bool _isInitializing = true;
   String? _errorMessage;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -29,70 +30,66 @@ class _VideoCallPageState extends State<VideoCallPage> {
     _initializeVideoCall();
   }
 
-  Future<void> _initializeVideoCall() async {
-    try {
-      // Ensure permissions are granted
-      if (!await _checkPermissions()) {
-        setState(() {
-          _errorMessage = 'Camera and microphone permissions are required.';
-          _isInitializing = false;
-        });
-        return;
-      }
-
-      // Initialize Agora Engine
-      _engine = createAgoraRtcEngine();
-      await _engine.initialize(RtcEngineContext(appId: appId));
-
-      // Enable video and audio
-      await _engine.enableVideo();
-      await _engine.enableAudio();
-
-      // Set up event handlers
-      _setupEventHandlers();
-
-      // Start local preview
-      await _engine.startPreview();
-
-      // Generate a dynamic channel name
-      String channelName = _generateChannelName();
-
-      // Join channel (you'll need to implement token generation)
-      await _joinChannel(channelName);
-
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to initialize video call: $e';
-        _isInitializing = false;
-      });
-    }
-  }
-
   Future<bool> _checkPermissions() async {
     final cameraPermission = await Permission.camera.request();
     final microphonePermission = await Permission.microphone.request();
-    return cameraPermission.isGranted && microphonePermission.isGranted;
+
+    if (cameraPermission.isPermanentlyDenied || microphonePermission.isPermanentlyDenied) {
+      setState(() {
+        _errorMessage = 'Permissions are permanently denied. Please enable them in settings.';
+      });
+      return false;
+    }
+
+    if (!cameraPermission.isGranted || !microphonePermission.isGranted) {
+      throw Exception('Permissions not granted');
+    }
+
+    return true;
   }
+
+  Future<void> _initializeVideoCall() async {
+  try {
+    if (!await _checkPermissions()) return;
+
+    _engine = createAgoraRtcEngine();
+    await _engine.initialize(RtcEngineContext(appId: appId));
+    await _engine.enableVideo();
+    await _engine.enableAudio();
+
+    _setupEventHandlers();
+    await _engine.startPreview();
+    await _joinChannel(); // Ensure this is called after permissions and engine setup
+  } catch (e) {
+    print('Error during Agora setup: $e');
+    _engine.release();
+    setState(() {
+      _errorMessage = 'Failed to initialize video call: $e';
+      _isInitializing = false;
+    });
+  }
+}
+
 
   void _setupEventHandlers() {
     _engine.registerEventHandler(
       RtcEngineEventHandler(
-        onError: (ErrorCodeType err, String msg) {
-          print('Agora Error: $err - $msg');
-        },
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          print('Joined channel successfully');
-          // Navigate to video call screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VideoCallScreen(
-                engine: _engine, 
-                peerId: widget.peerId,
-                channelName: connection.channelId ?? '',
+          if (!_hasNavigated) {
+            setState(() {
+              _hasNavigated = true;
+            });
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VideoCallScreen(
+                  engine: _engine,
+                  peerId: widget.peerId,
+                  channelName: connection.channelId ?? '',
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           print('Remote user joined: $remoteUid');
@@ -104,18 +101,13 @@ class _VideoCallPageState extends State<VideoCallPage> {
     );
   }
 
-  Future<void> _joinChannel(String channelName) async {
-    // In a real app, generate a token server-side
+  Future<void> _joinChannel() async {
     await _engine.joinChannel(
-      token: '007eJxTYMhpSJto72zzXz13u2XotD/vpq8TvVzWJCX9sWnLkbTywrUKDEbmacYGJgaGZqYpZibGqaaJFhbmhkZpRhYpJsnGBimmPyPD0hsCGRmuHi5lYWSAQBBfgMExpyojNTM3tcg5IzEvLzWHgQEAAf4kqw==', // Implement token generation
-      channelId: channelName,
-      uid: 0,
+      token: '007eJxTYLieMYPH6V7CrZN7/CU+bP+tdbTypUBqLX/y0n3HFwXGFK5RYDAyTzM2MDEwNDNNMTMxTjVNtLAwNzRKM7JIMUk2Nkgx9Tgbmd4QyMgwZ+prRkYGCATxORkcc6qCUnMyU9MYGABXbSJ3',
+      channelId: 'AlzRelief',
+      uid: widget.userId.hashCode, // Ensure unique UIDs for both users
       options: const ChannelMediaOptions(),
     );
-  }
-
-  String _generateChannelName() {
-    return '${widget.userId}_${widget.peerId}_${DateTime.now().millisecondsSinceEpoch}';
   }
 
   @override
@@ -144,7 +136,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void dispose() {
-    _engine.release();
+    _engine?.release();
     super.dispose();
   }
 }

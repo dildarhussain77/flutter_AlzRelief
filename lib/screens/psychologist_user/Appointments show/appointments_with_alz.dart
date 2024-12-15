@@ -6,10 +6,10 @@ class AppointmentsWithAlzheimersScreen extends StatefulWidget {
   final String alzheimerId;
 
   const AppointmentsWithAlzheimersScreen({
-    Key? key,
+    super.key,
     required this.psychologistId,
     required this.alzheimerId,
-  }) : super(key: key);
+  });
 
   @override
   State<AppointmentsWithAlzheimersScreen> createState() => _AppointmentsWithAlzheimersScreenState();
@@ -25,29 +25,117 @@ class _AppointmentsWithAlzheimersScreenState extends State<AppointmentsWithAlzhe
   }
 
   // Fetch schedules from Firebase
-  Future<void> _fetchSchedules() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
+  // Future<void> _fetchSchedules() async {
+  //   try {
+  //     final snapshot = await FirebaseFirestore.instance
+  //         .collection('psychologist')
+  //         .doc(widget.psychologistId)
+  //         .collection('appointedAlzheimers')
+  //         .doc(widget.alzheimerId)
+  //         .collection('schedules')
+  //         .get();
+
+  //     setState(() {
+  //       schedules = snapshot.docs.map((doc) {
+  //         final data = doc.data() as Map<String, dynamic>;
+  //         data['id'] = doc.id; // Add document ID for updates
+  //         return data;
+  //       }).toList();
+  //     });
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error fetching schedules: $e')),
+  //     );
+  //   }
+  // }
+
+
+Future<void> _fetchSchedules() async {
+  try {
+    // Fetch all documents in the appointedAlzheimers subcollection
+    final appointedAlzheimersSnapshot = await FirebaseFirestore.instance
+        .collection('psychologist')
+        .doc(widget.psychologistId)
+        .collection('appointedAlzheimers')
+        .get();
+
+    List<Map<String, dynamic>> fetchedSchedules = [];
+
+    for (var alzheimerDoc in appointedAlzheimersSnapshot.docs) {
+      // Fetch schedules subcollection for each appointed Alzheimer user
+      final schedulesSnapshot = await FirebaseFirestore.instance
           .collection('psychologist')
           .doc(widget.psychologistId)
           .collection('appointedAlzheimers')
-          .doc(widget.alzheimerId)
+          .doc(alzheimerDoc.id)
           .collection('schedules')
           .get();
 
-      setState(() {
-        schedules = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id; // Add document ID for updates
-          return data;
-        }).toList();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching schedules: $e')),
-      );
+      for (var scheduleDoc in schedulesSnapshot.docs) {
+        final scheduleData = scheduleDoc.data();
+        scheduleData['id'] = scheduleDoc.id; // Add document ID
+        scheduleData['alzheimerName'] = alzheimerDoc['alzheimerUserName']; // Add Alzheimer's user name
+        fetchedSchedules.add(scheduleData);
+      }
     }
+
+    setState(() {
+      schedules = fetchedSchedules;
+    });
+
+    if (schedules.isEmpty) {
+      print("No schedules found!");
+    } else {
+      print("Schedules fetched successfully!");
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching schedules: $e')),
+    );
   }
+}
+
+ //Fetch schedules from Firebase   commenting on 12/12
+//  Future<void> _fetchSchedules() async {
+//   try {  
+//   QuerySnapshot snapshot = await FirebaseFirestore.instance
+//     .collection('psychologist')
+//     .doc(widget.psychologistId) // Ensure dynamic ID here
+//     .collection('appointedAlzheimers')
+//     .doc(widget.alzheimerId)  // Ensure dynamic ID here
+//     .collection('schedules')
+//     .get();
+
+//   if (snapshot.docs.isEmpty) {
+//     print("No documents found in schedules collection!");
+//   } else {
+//     for (var doc in snapshot.docs) {
+//       schedules = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+//       print("Document ID: ${doc.id}, Data: ${doc.data()}");
+//       setState(() {});
+//     }
+//   }
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Error fetching schedules: $e')),
+//       );
+//     }
+//   }
+
+// void fetchSchedules() async {
+//   QuerySnapshot snapshot = await FirebaseFirestore.instance
+//       .collection('psychologist')
+//       .doc(psychologistId)
+//       .collection('appointedAlzheimers')
+//       .doc(alzheimerUserId)
+//       .collection('schedules')
+//       .get();
+//   if (snapshot.docs.isNotEmpty) {
+//     schedules = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+//     setState(() {}); // Rebuild the widget with the updated data
+//   }
+// }
+
 
   // Update appointment completion status in Firebase
   Future<void> _updateAppointmentStatus(String scheduleId, bool isCompleted) async {
@@ -155,7 +243,7 @@ class _AppointmentsWithAlzheimersScreenState extends State<AppointmentsWithAlzhe
                             ),
                           ),
                           subtitle: Text(
-                            "Date: ${schedule["date"]}\nTime: ${schedule["time"]}\nAlzheimer: ${schedule["alzheimerName"]}",
+                            "Date: ${schedule["date"]}\nTime: ${schedule["time"]}\nWith: ${schedule["alzheimerName"]}",
                             style: const TextStyle(color: Colors.grey),
                           ),
                           trailing: IconButton(

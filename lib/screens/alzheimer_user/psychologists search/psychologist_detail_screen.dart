@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class PsychologistDetailsScreen extends StatefulWidget {
   final Psychologist psychologist;
 
-  PsychologistDetailsScreen({required this.psychologist});
+  const PsychologistDetailsScreen({super.key, required this.psychologist});
 
   @override
   _PsychologistDetailsScreenState createState() =>
@@ -255,7 +255,7 @@ class SectionTitle extends StatelessWidget {
   final String title;
   
 
-  SectionTitle({required this.title, });
+  const SectionTitle({super.key, required this.title, });
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +281,7 @@ class DetailRow extends StatelessWidget {
   final String value;
   final Color color;
 
-  DetailRow({required this.icon, required this.label, required this.value, required this.color});
+  const DetailRow({super.key, required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {

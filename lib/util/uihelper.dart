@@ -105,23 +105,23 @@ class UiHelper {
   //   );
   // }
 
-  // static CustomButton(VoidCallback voidCallBack, String text, {Color? color}){
+  static CustomButton(VoidCallback voidCallBack, String text, {Color? color}){
     
 
-  //   return SizedBox(height: 50, width: 300,  child: ElevatedButton(onPressed: (){
+    return SizedBox(height: 50, width: 300,  child: ElevatedButton(onPressed: (){
       
-  //     voidCallBack();
-  //   },
-  //     style: ElevatedButton.styleFrom(
-  //       backgroundColor: color ?? Color.fromRGBO(95, 37, 133, 1.0),
-  //       shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.circular(25),
+      voidCallBack();
+    },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color ?? Color.fromRGBO(95, 37, 133, 1.0),
+        shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(25),
         
-  //     ), 
+      ), 
      
-  //     ),
-  //     child: Text(text, style: TextStyle(color: Colors.white, fontSize: 20),)),);
-  // }
+      ),
+      child: Text(text, style: TextStyle(color: Colors.white, fontSize: 20),)),);
+  }
 
 
 

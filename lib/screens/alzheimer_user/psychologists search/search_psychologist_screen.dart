@@ -5,6 +5,8 @@ import 'psychologist_detail_screen.dart'; // Import the new detail screen
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class PsychologistSearchScreen extends StatefulWidget {
+  const PsychologistSearchScreen({super.key});
+
   @override
   _PsychologistSearchScreenState createState() =>
       _PsychologistSearchScreenState();
@@ -12,7 +14,7 @@ class PsychologistSearchScreen extends StatefulWidget {
 
 class _PsychologistSearchScreenState extends State<PsychologistSearchScreen> {
   late Future<List<Psychologist>> psychologists;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -32,7 +34,7 @@ class _PsychologistSearchScreenState extends State<PsychologistSearchScreen> {
         querySnapshot = await FirebaseFirestore.instance
             .collection('psychologist')
             .where('fullName', isGreaterThanOrEqualTo: query)
-            .where('fullName', isLessThanOrEqualTo: query + '\uf8ff') // Handle search in full name
+            .where('fullName', isLessThanOrEqualTo: '$query\uf8ff') // Handle search in full name
             .get();
       }
 

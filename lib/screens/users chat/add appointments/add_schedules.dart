@@ -6,10 +6,10 @@ class AddScheduleScreen extends StatefulWidget {
   final String alzheimerId;
 
   const AddScheduleScreen({
-    Key? key,
+    super.key,
     required this.psychologistId,
     required this.alzheimerId,
-  }) : super(key: key);
+  });
 
   @override
   State<AddScheduleScreen> createState() => _AddScheduleScreenState();
@@ -156,7 +156,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
       setState(() {
         schedules = snapshot.docs.map((doc) {
-          return doc.data() as Map<String, dynamic>;
+          return doc.data();
         }).toList();
       });
     } catch (e) {
@@ -233,7 +233,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 child: ElevatedButton(
                   onPressed: _addSchedule,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF5F2585),
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 90),
+                    backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
                   ),
                   child: const Text(
                     "Add Schedule",
@@ -243,18 +244,18 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ),
               const SizedBox(height: 32),
               // Button to fetch and view the schedule
-              Center(
-                child: ElevatedButton(
-                  onPressed: _fetchSchedules,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF5F2585),
-                  ),
-                  child: const Text(
-                    "View Schedules",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
+              // Center(
+              //   child: ElevatedButton(
+              //     onPressed: _fetchSchedules,
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Color(0xFF5F2585),
+              //     ),
+              //     child: const Text(
+              //       "View Schedules",
+              //       style: TextStyle(color: Colors.white),
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 32),
               // Display fetched schedules
               if (schedules.isNotEmpty) ...[

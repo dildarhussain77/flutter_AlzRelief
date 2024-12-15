@@ -113,6 +113,19 @@ class _HomePageState extends State<AlzheimerHomePage> {
   // Function to fetch IDs and navigate
   Future<void> fetchIds(BuildContext context, String alzheimerUserId, String psychologistId) async {
   try {
+    // Ensure the user is authenticated and get the updated ID token
+    final user = FirebaseAuth.instance.currentUser;
+    // Refresh token
+    if (user != null) {
+      final idToken = await user.getIdToken(true); // true forces token refresh
+      print("Refreshed Token: $idToken");  // You can print the token for debugging purposes
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No logged-in user found!')),
+      );
+      return;
+    }
+
     // Fetch the alzheimer document using the given alzheimerUserId
     DocumentSnapshot alzheimerDoc = await FirebaseFirestore.instance
         .collection('alzheimer')
@@ -134,8 +147,9 @@ class _HomePageState extends State<AlzheimerHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => AppointmentsWithPsychologistsScreen(
-          psychologistId: fetchedPsychologistId,
           alzheimerId: fetchedAlzheimerId,
+          psychologistId: fetchedPsychologistId,
+          
         ),
       ),
     );

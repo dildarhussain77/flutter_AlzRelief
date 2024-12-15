@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last
 
 
-import 'package:alzrelief/screens/psychologist_user/Appointments/appointments_with_alz.dart';
+import 'package:alzrelief/screens/psychologist_user/Appointments%20show/appointments_with_alz.dart';
 import 'package:alzrelief/screens/psychologist_user/Home/image_carousel.dart';
 import 'package:alzrelief/screens/psychologist_user/appointed%20azheimers/appointed_alzheimers.dart';
 import 'package:alzrelief/screens/psychologist_user/drawer/psy_drawer_header.dart';
@@ -98,9 +98,22 @@ class _PsyHomePageState extends State<PsyHomePage> {
     }
   }
 
-  // Function to fetch IDs and navigate
-  Future<void> fetchIds(BuildContext context, String psychologistId, String alzheimerUserId) async {
+ Future<void> fetchIds(BuildContext context, String psychologistId, String alzheimerUserId) async {
   try {
+    // Ensure the user is authenticated and get the updated ID token
+    final user = FirebaseAuth.instance.currentUser;
+
+    // Refresh token
+    if (user != null) {
+      final idToken = await user.getIdToken(true); // true forces token refresh
+      print("Refreshed Token: $idToken");  // You can print the token for debugging purposes
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No logged-in user found!')),
+      );
+      return;
+    }
+
     // Fetch the psychologist document using the given psychologistId
     DocumentSnapshot psychologistDoc = await FirebaseFirestore.instance
         .collection('psychologist')
@@ -276,7 +289,7 @@ class _PsyHomePageState extends State<PsyHomePage> {
                               // Query the first Alzheimer user (replace logic if needed)
                               QuerySnapshot alzheimerQuery = await FirebaseFirestore.instance
                                   .collection('alzheimer')
-                                  .limit(1) // Limit to fetch only one document
+                                  .limit(6) // Limit to fetch only one document
                                   .get();
                       
                               if (alzheimerQuery.docs.isNotEmpty) {

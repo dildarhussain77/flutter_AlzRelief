@@ -335,12 +335,12 @@ class _AlzheimerProfilePageState extends State<AlzheimerProfilePage> {
               );
             }
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromRGBO(95, 37, 133, 1.0),
+          ),
           child: Text(
             'Update Home Location',
             style: TextStyle(color: Colors.white),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromRGBO(95, 37, 133, 1.0),
           ),
         ),
 

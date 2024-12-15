@@ -155,15 +155,16 @@ class _PsychologistRegistrationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Psychologist Registration'),
+        title: Text('Psychologist Registration', style: TextStyle(color: Colors.white),),
         backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 20.0),
+            SizedBox(height: 5.0),
             GestureDetector(
               onTap: _getImageFromGallery,
               child: Stack(
@@ -199,7 +200,7 @@ class _PsychologistRegistrationScreenState
                 ],
               ),
             ),
-            SizedBox(height: 20.0),
+            SizedBox(height: 10.0),
             TextField(
               controller: _firstNameController,
               decoration: InputDecoration(labelText: 'Full Name'),
@@ -209,7 +210,7 @@ class _PsychologistRegistrationScreenState
                 LengthLimitingTextInputFormatter(30),
               ],
             ),
-            SizedBox(height: 10.0),
+            SizedBox(height: 5.0),
             TextField(
               controller: _phoneNoController,
               decoration: InputDecoration(labelText: 'Phone Number'),
@@ -218,9 +219,8 @@ class _PsychologistRegistrationScreenState
                 FilteringTextInputFormatter.allow(RegExp('[0-9]')),
                 LengthLimitingTextInputFormatter(11),
               ],
-            ),
-            SizedBox(height: 10.0),
-            SizedBox(height: 10.0),
+            ),            
+            SizedBox(height: 5.0),
             DropdownButtonFormField<String>(
               value: _selectedSpecialty,
               onChanged: (value) {
@@ -248,7 +248,7 @@ class _PsychologistRegistrationScreenState
                 );
               }).toList(),
             ),
-            SizedBox(height: 10.0),
+            SizedBox(height: 5.0),
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(
@@ -260,8 +260,7 @@ class _PsychologistRegistrationScreenState
                 LengthLimitingTextInputFormatter(100),
               ],
             ),
-
-            SizedBox(height: 20.0),
+            
             ListTile(
               title: Text(
                   'Start Time: ${_startTime != null ? _startTime!.format(context) : 'Not Set'}'),
@@ -277,8 +276,7 @@ class _PsychologistRegistrationScreenState
                   });
                 }
               },
-            ),
-            SizedBox(height: 10.0),
+            ),            
             ListTile(
               title: Text(
                   'End Time: ${_endTime != null ? _endTime!.format(context) : 'Not Set'}'),
@@ -295,11 +293,11 @@ class _PsychologistRegistrationScreenState
                 }
               },
             ),
-            SizedBox(height: 20.0),
+            SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: _registerPsychologist,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 15.0),
+                padding: EdgeInsets.symmetric(vertical: 12.0),
                 backgroundColor: const Color.fromRGBO(95, 37, 133, 1.0),
               ),
               child: Text(

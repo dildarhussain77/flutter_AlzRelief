@@ -1,5 +1,3 @@
-
-
 import 'package:alzrelief/screens/users%20chat/add%20appointments/add_schedules.dart';
 import 'package:alzrelief/screens/users%20chat/video_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,12 +11,12 @@ class ChatScreen extends StatefulWidget {
   final bool isPsychologist; // If true, current user is psychologist
 
   const ChatScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.peerId,
     required this.peerName,
     required this.isPsychologist,
-  }) : super(key: key);
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -28,32 +26,51 @@ class _ChatScreenState extends State<ChatScreen> {
 
  // Request Permissions and Start Video Call
   Future<void> _startVideoCall() async {
-    try {
-      // Request camera and microphone permissions
-      final cameraPermission = await Permission.camera.request();
-      final microphonePermission = await Permission.microphone.request();
+  try {
+    // Request camera and microphone permissions
+    final cameraPermission = await Permission.camera.request();
+    final microphonePermission = await Permission.microphone.request();
 
-      if (!cameraPermission.isGranted || !microphonePermission.isGranted) {
-        _showPermissionDeniedDialog();
-        return;
-      }
-
-      // Navigate to Video Call Page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VideoCallPage(
-            userId: widget.userId, 
-            peerId: widget.peerId
-          ),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error initiating video call: $e')),
-      );
+    if (!cameraPermission.isGranted || !microphonePermission.isGranted) {
+      _showPermissionDeniedDialog();
+      return;
     }
+
+    // Notify the other user to join (via push notification or message)
+    // This could involve sending a message that says "video call request"
+    // Notify the other user about the video call
+    await notifyVideoCall();
+
+    // Now, navigate to the VideoCallPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoCallPage(
+          userId: widget.userId, 
+          peerId: widget.peerId
+        ),
+      ),
+    );
+
+    
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error initiating video call: $e')),
+    );
   }
+}
+Future<void> notifyVideoCall() async {
+  final chatMessage = {
+    "message": "Video call initiated",
+    "senderId": widget.userId,
+    "receiverId": widget.peerId,
+    "timestamp": FieldValue.serverTimestamp(),
+    "type": "videoCall", // Add a type field to differentiate
+  };
+
+  await getChatCollection().add(chatMessage);
+}
+
 
   // Show Permission Denied Dialog
   void _showPermissionDeniedDialog() {
@@ -266,87 +283,75 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: getChatCollection()
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                     // Error check
-    
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+  stream: getChatCollection()
+      .orderBy('timestamp', descending: true)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text("No messages yet."));
-                    }
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return const Center(child: Text("No messages yet."));
+    }
 
-                    final messages = snapshot.data!.docs;
+    final messages = snapshot.data!.docs;
 
-                    return ListView.builder(
-                      controller: _scrollController,
-                      reverse: true,
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final message = messages[index];
-                        bool isSender = message['senderId'] == widget.userId;
-                        bool isRead = message['isRead'] ?? false;
+    return ListView.builder(
+  controller: _scrollController,
+  reverse: true,
+  itemCount: messages.length,
+  itemBuilder: (context, index) {
+    final message = messages[index];
+    final messageData = message.data() as Map<String, dynamic>?; // Cast data to Map safely
 
-                        // Mark the message as read when opened
-                        if (!isRead && message['receiverId'] == widget.userId) {
-                          _markMessageAsRead(message);
-                        }
+    if (messageData != null &&
+        messageData.containsKey('type') &&
+        messageData['type'] == 'videoCall' &&
+        messageData['receiverId'] == widget.userId) {
+      // Navigate to VideoCallPage if a video call is initiated
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VideoCallPage(
+              userId: widget.userId,
+              peerId: messageData['senderId'],
+            ),
+          ),
+        );
+      });
+    }
 
-                       return Align(
-                        alignment: isSender
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.6, // Adjust max width
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSender ? Color(0xFF5F2585) : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(15.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 5.0,
-                                spreadRadius: 1.0,
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            alignment: Alignment.centerRight, // Align the icon to the right
-                            children: [
-                              Text(
-                                message['message'],
-                                style: TextStyle(
-                                  color: isSender ? Colors.white : Colors.black,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              // if (isSender)
-                              //   Positioned(
-                              //     right: 0,
-                              //     bottom: 0,
-                              //     child: Icon(
-                              //       isRead ? Icons.check_circle : Icons.check_circle_outline,
-                              //       color: isRead ? Colors.blue : Colors.grey,
-                              //       size: 18.0,
-                              //     ),
-                              //   ),
-                            ],
-                          ),
-                        ),
-                      );
+    final isSender = messageData?['senderId'] == widget.userId;
+    final isRead = messageData?['isRead'] ?? false;
 
+    return Align(
+      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.6,
+        ),
+        decoration: BoxDecoration(
+          color: isSender ? const Color(0xFF5F2585) : Colors.grey[300],
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: Text(
+          messageData?['message'] ?? "",
+          style: TextStyle(
+            color: isSender ? Colors.white : Colors.black,
+            fontSize: 16.0,
+          ),
+        ),
+      ),
+    );
+  },
+);
+  },
+),
 
-                      },
-                    );
-                  },
-                ),
               ),
             ),
             Container(
